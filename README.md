@@ -241,7 +241,43 @@ cd diamondhands
 # You should have a docker-compose.yml file here
 ```
 
-Or fetch your own docker-compose file.
+Modify as per docker v3 specs.
+
+Or use this:
+
+```yaml
+version: '3'
+
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - nginx-logs:/var/log/nginx
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.001'
+          memory: 128M
+        reservations:
+          cpus: '0.001'
+          memory: 128M
+    env_file:
+      - ./env-{ENVIRONMENT}/aws.env
+    labels:
+      # kompose.image-pull-secret: "quay.io"
+      kompose.service.type: "loadbalancer"
+      kompose.service.expose: "true"
+    restart: "on-failure"
+
+volumes:
+  nginx-logs:
+```
+
+Or fetch your own docker-compose v3 file.
 
 ### 5. Create namespace
 
@@ -258,6 +294,7 @@ Store as `namespace.yaml`.
 
 ```bash
 KUBECTL='kubectl --namespace kubernetes_test'
+# KUBECTL='kubectl --dry-run=client'
 $KUBECTL apply -f ./namespace.yml
 
 export PROJECT_NAME=diamondhands
@@ -384,12 +421,6 @@ https://stackoverflow.com/questions/45079988/ingress-vs-load-balancer
 https://github.com/Kong/kubernetes-ingress-controller
 https://docs.konghq.com/kubernetes-ingress-controller/1.1.x/guides/getting-started/
 https://kubernetes.github.io/ingress-nginx/
-
-
-add doc for service types
-k apply -f ./namespace.yml
-kc delete -f ./helm --namespace collect
-
 
 ## Config Management 🗒️
 
