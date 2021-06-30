@@ -444,8 +444,8 @@ https://techbeacon.com/devops/one-year-using-kubernetes-production-lessons-learn
 - https://kubernetes.io/docs/tasks/debug-application-cluster/debug-service/
 - Shell: https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/
 - For running containers: https://kubernetes.io/docs/tasks/debug-application-cluster/debug-running-pod/#container-exec
-For stopped containers: https://kubernetes.io/docs/tasks/debug-application-cluster/debug-running-pod/#ephemeral-container
-Extensions: https://github.com/aylei/kubectl-debug#install-the-kubectl-debug-plugin
+- For stopped containers: https://kubernetes.io/docs/tasks/debug-application-cluster/debug-running-pod/#ephemeral-container
+- Extensions: https://github.com/aylei/kubectl-debug#install-the-kubectl-debug-plugin
 
 Stopped container debugging:
 Override the default troubleshooting image
