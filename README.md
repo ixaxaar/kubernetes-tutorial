@@ -19,7 +19,8 @@
     - [6. Generate kubernetes resource files](#6-generate-kubernetes-resource-files)
     - [7. Create configmaps](#7-create-configmaps)
     - [8. Create secret if pulling image from external sources](#8-create-secret-if-pulling-image-from-external-sources)
-    - [8. Deploy resources](#8-deploy-resources)
+    - [9. Deploy resources](#9-deploy-resources)
+    - [10. Confirm deployment](#10-confirm-deployment)
   - [kubectl Cheatsheet in zsh](#kubectl-cheatsheet-in-zsh)
 - [Docs](#docs)
   - [Kubernetes local setup 💻](#kubernetes-local-setup-)
@@ -377,14 +378,20 @@ if [ "$EXISTS" != "quay.io" ]; then
 fi
 ```
 
-### 8. Deploy resources
+### 9. Deploy resources
 
 ```bash
 $KUBECTL apply -f ./kubernetes/ --namespace ktest
 ```
 
+### 10. Confirm deployment
+
 ```
 kubectl logs primary-db-79df5979cb-lrljd -n ktest --tail 100 --follow
+```
+
+```
+kubectl exec --stdin --tty primary-db-79df5979cb-lrljd -n ktest -- /bin/bash
 ```
 
 ## kubectl Cheatsheet in zsh
