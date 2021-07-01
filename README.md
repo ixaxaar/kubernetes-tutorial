@@ -383,6 +383,10 @@ fi
 $KUBECTL apply -f ./kubernetes/ --namespace ktest
 ```
 
+```
+kubectl logs primary-db-79df5979cb-lrljd -n ktest --tail 100 --follow
+```
+
 ## kubectl Cheatsheet in zsh
 
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/
