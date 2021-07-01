@@ -246,35 +246,43 @@ Modify as per docker v3 specs.
 Or use this:
 
 ```yaml
-version: '3'
+version: "3"
 
 services:
-  nginx:
-    image: nginx
+  primary-db:
+    image: postgres:12-alpine
+    env_file:
+      - ./env-sandbox/db.env
     ports:
-      - "80:80"
+      - "5432:5432"
     volumes:
-      - nginx-logs:/var/log/nginx
+      - primary-db-data:/var/lib/postgresql/data
     deploy:
       mode: replicated
       replicas: 1
       resources:
         limits:
           cpus: '0.001'
-          memory: 128M
+          memory: 1024M
         reservations:
           cpus: '0.001'
-          memory: 128M
-    env_file:
-      - ./env-{ENVIRONMENT}/aws.env
+          memory: 512M
     labels:
-      # kompose.image-pull-secret: "quay.io"
-      kompose.service.type: "loadbalancer"
-      kompose.service.expose: "true"
-    restart: "on-failure"
+      kompose.service.type: "clusterip"
 
 volumes:
-  nginx-logs:
+  primary-db-data:
+```
+
+```bash
+mkdir env-sandbox
+touch env-sandbox/db.env
+```
+
+```
+POSTGRES_PASSWORD=${PGPASSWORD}
+POSTGRES_USER=${PGUSER}
+POSTGRES_DB=${PGDATABASE}
 ```
 
 Or fetch your own docker-compose v3 file.
@@ -285,7 +293,7 @@ Or fetch your own docker-compose v3 file.
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: kubernetes_test
+  name: ktest
 ```
 
 Store as `namespace.yaml`.
@@ -293,7 +301,7 @@ Store as `namespace.yaml`.
 ### 5. Prepare kubectl
 
 ```bash
-KUBECTL='kubectl --namespace kubernetes_test'
+KUBECTL='kubectl --namespace ktest'
 # KUBECTL='kubectl --dry-run=client'
 $KUBECTL apply -f ./namespace.yml
 
@@ -324,10 +332,14 @@ done
 Format all envs into a directory `.env`.
 
 ```bash
-for filename in *.env; do
+for filename in env-*; do
   CFG_NAME=$(echo $filename | cut -d '.' -f 1)
   $KUBECTL create configmap --from-env-file ./${filename} env-${ENVIRONMENT}-${CFG_NAME}-env || true
 done
+```
+
+```bash
+$KUBECTL create configmap --from-env-file ./db.env env-sandbox-db-env
 ```
 
 ### 8. Create secret if pulling image from external sources
@@ -349,7 +361,7 @@ $KUBECTL create secret docker-registry $ENVIRONMENT-aws-ecr-$AWS_DEFAULT_REGION 
   --docker-server=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com \
   --docker-username=AWS \
   --docker-password=$PASS \
-  --docker-email=lel@lol.com --namespace kubernetes_test
+  --docker-email=lel@lol.com --namespace ktest
 ```
 
 Quay:
@@ -361,14 +373,14 @@ if [ "$EXISTS" != "quay.io" ]; then
     --docker-server=quay.io \
     --docker-username=setuinfra+your-bot-name \
     --docker-password=get-your-won-key \
-    --docker-email=lel@lol.com --namespace kubernetes_test
+    --docker-email=lel@lol.com --namespace ktest
 fi
 ```
 
 ### 8. Deploy resources
 
 ```bash
-$KUBECTL apply -f ./kubernetes/ --namespace kubernetes_test
+$KUBECTL apply -f ./kubernetes/ --namespace ktest
 ```
 
 ## kubectl Cheatsheet in zsh
